@@ -5,29 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2 } from "lucide-react";
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
-  categoria: string;
-  stock: number;
-}
-
-const productosIniciales: Producto[] = [
-  { id: 1, nombre: "Café Americano", precio: 2500, categoria: "Bebidas Calientes", stock: 50 },
-  { id: 2, nombre: "Cappuccino", precio: 3500, categoria: "Bebidas Calientes", stock: 30 },
-  { id: 3, nombre: "Latte", precio: 4000, categoria: "Bebidas Calientes", stock: 25 },
-  { id: 4, nombre: "Espresso", precio: 2000, categoria: "Bebidas Calientes", stock: 40 },
-  { id: 5, nombre: "Frappé", precio: 4500, categoria: "Bebidas Frías", stock: 20 },
-  { id: 6, nombre: "Jugo Natural", precio: 3000, categoria: "Bebidas Frías", stock: 15 },
-  { id: 7, nombre: "Croissant", precio: 2800, categoria: "Panadería", stock: 12 },
-  { id: 8, nombre: "Muffin", precio: 2200, categoria: "Panadería", stock: 8 },
-];
+import { Edit, Trash2 } from "lucide-react";
+import { useApp, Producto } from '@/contexts/AppContext';
 
 const GestionView = () => {
-  const [productos, setProductos] = useState<Producto[]>(productosIniciales);
+  const { productos, agregarProducto, actualizarProducto, eliminarProducto } = useApp();
   const [productoEditando, setProductoEditando] = useState<Producto | null>(null);
   const [formulario, setFormulario] = useState({
     nombre: '',
@@ -44,8 +26,7 @@ const GestionView = () => {
   const manejarSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const nuevoProducto: Producto = {
-      id: productoEditando ? productoEditando.id : Date.now(),
+    const datosProducto = {
       nombre: formulario.nombre,
       precio: parseFloat(formulario.precio),
       categoria: formulario.categoria,
@@ -53,9 +34,12 @@ const GestionView = () => {
     };
 
     if (productoEditando) {
-      setProductos(prev => prev.map(p => p.id === productoEditando.id ? nuevoProducto : p));
+      actualizarProducto({
+        ...datosProducto,
+        id: productoEditando.id
+      });
     } else {
-      setProductos(prev => [...prev, nuevoProducto]);
+      agregarProducto(datosProducto);
     }
 
     resetFormulario();
@@ -69,10 +53,6 @@ const GestionView = () => {
       categoria: producto.categoria,
       stock: producto.stock.toString()
     });
-  };
-
-  const eliminarProducto = (id: number) => {
-    setProductos(prev => prev.filter(p => p.id !== id));
   };
 
   return (

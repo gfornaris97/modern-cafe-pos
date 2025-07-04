@@ -2,34 +2,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, Trash2 } from "lucide-react";
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
-  categoria: string;
-}
-
-interface ItemVenta {
-  producto: Producto;
-  cantidad: number;
-}
-
-const productos: Producto[] = [
-  { id: 1, nombre: "Café Americano", precio: 2500, categoria: "Bebidas Calientes" },
-  { id: 2, nombre: "Cappuccino", precio: 3500, categoria: "Bebidas Calientes" },
-  { id: 3, nombre: "Latte", precio: 4000, categoria: "Bebidas Calientes" },
-  { id: 4, nombre: "Espresso", precio: 2000, categoria: "Bebidas Calientes" },
-  { id: 5, nombre: "Frappé", precio: 4500, categoria: "Bebidas Frías" },
-  { id: 6, nombre: "Jugo Natural", precio: 3000, categoria: "Bebidas Frías" },
-  { id: 7, nombre: "Croissant", precio: 2800, categoria: "Panadería" },
-  { id: 8, nombre: "Muffin", precio: 2200, categoria: "Panadería" },
-];
+import { useApp, Producto, ItemVenta } from '@/contexts/AppContext';
+import { useToast } from "@/hooks/use-toast";
 
 const VentaView = () => {
+  const { productos, registrarVenta } = useApp();
+  const { toast } = useToast();
   const [carrito, setCarrito] = useState<ItemVenta[]>([]);
   const [filtroCategoria, setFiltroCategoria] = useState<string>('todas');
 
@@ -40,6 +20,26 @@ const VentaView = () => {
     : productos.filter(p => p.categoria === filtroCategoria);
 
   const agregarAlCarrito = (producto: Producto) => {
+    if (producto.stock <= 0) {
+      toast({
+        title: "Sin stock",
+        description: `${producto.nombre} no tiene stock disponible`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const cantidadEnCarrito = carrito.find(item => item.producto.id === producto.id)?.cantidad || 0;
+    
+    if (cantidadEnCarrito >= producto.stock) {
+      toast({
+        title: "Stock insuficiente",
+        description: `Solo hay ${producto.stock} unidades disponibles de ${producto.nombre}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setCarrito(prev => {
       const itemExistente = prev.find(item => item.producto.id === producto.id);
       if (itemExistente) {
@@ -58,6 +58,16 @@ const VentaView = () => {
     if (nuevaCantidad <= 0) {
       setCarrito(prev => prev.filter(item => item.producto.id !== id));
     } else {
+      const producto = productos.find(p => p.id === id);
+      if (producto && nuevaCantidad > producto.stock) {
+        toast({
+          title: "Stock insuficiente",
+          description: `Solo hay ${producto.stock} unidades disponibles`,
+          variant: "destructive"
+        });
+        return;
+      }
+      
       setCarrito(prev =>
         prev.map(item =>
           item.producto.id === id
@@ -71,9 +81,22 @@ const VentaView = () => {
   const total = carrito.reduce((sum, item) => sum + (item.producto.precio * item.cantidad), 0);
 
   const procesarVenta = () => {
-    if (carrito.length === 0) return;
+    if (carrito.length === 0) {
+      toast({
+        title: "Carrito vacío",
+        description: "Agrega productos al carrito antes de procesar la venta",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    alert(`Venta procesada por $${total.toLocaleString()}`);
+    registrarVenta(carrito, 'Efectivo');
+    
+    toast({
+      title: "Venta procesada",
+      description: `Venta por $${total.toLocaleString()} procesada exitosamente`
+    });
+    
     setCarrito([]);
   };
 
@@ -101,15 +124,23 @@ const VentaView = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {productosFiltrados.map(producto => (
-                <Card key={producto.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                <Card 
+                  key={producto.id} 
+                  className={`cursor-pointer hover:shadow-md transition-shadow ${
+                    producto.stock <= 0 ? 'opacity-50' : ''
+                  }`}
+                >
                   <CardContent className="p-4" onClick={() => agregarAlCarrito(producto)}>
                     <div className="text-center">
                       <h3 className="font-semibold text-lg mb-2">{producto.nombre}</h3>
                       <Badge variant="secondary" className="mb-2">
                         {producto.categoria}
                       </Badge>
-                      <p className="text-2xl font-bold text-green-600">
+                      <p className="text-2xl font-bold text-green-600 mb-2">
                         ${producto.precio.toLocaleString()}
+                      </p>
+                      <p className={`text-sm ${producto.stock < 10 ? 'text-red-600' : 'text-gray-600'}`}>
+                        Stock: {producto.stock}
                       </p>
                     </div>
                   </CardContent>

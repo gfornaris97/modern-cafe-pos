@@ -5,78 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Search, DollarSign } from "lucide-react";
-
-interface Venta {
-  id: number;
-  fecha: string;
-  hora: string;
-  total: number;
-  items: Array<{
-    producto: string;
-    cantidad: number;
-    precio: number;
-  }>;
-  metodoPago: string;
-}
-
-const ventasEjemplo: Venta[] = [
-  {
-    id: 1,
-    fecha: "2024-01-15",
-    hora: "09:30",
-    total: 7500,
-    items: [
-      { producto: "Café Americano", cantidad: 2, precio: 2500 },
-      { producto: "Croissant", cantidad: 1, precio: 2500 }
-    ],
-    metodoPago: "Efectivo"
-  },
-  {
-    id: 2,
-    fecha: "2024-01-15",
-    hora: "10:15",
-    total: 4000,
-    items: [
-      { producto: "Latte", cantidad: 1, precio: 4000 }
-    ],
-    metodoPago: "Tarjeta"
-  },
-  {
-    id: 3,
-    fecha: "2024-01-15",
-    hora: "11:45",
-    total: 6500,
-    items: [
-      { producto: "Cappuccino", cantidad: 1, precio: 3500 },
-      { producto: "Jugo Natural", cantidad: 1, precio: 3000 }
-    ],
-    metodoPago: "Efectivo"
-  },
-  {
-    id: 4,
-    fecha: "2024-01-14",
-    hora: "14:20",
-    total: 9000,
-    items: [
-      { producto: "Frappé", cantidad: 2, precio: 4500 }
-    ],
-    metodoPago: "Tarjeta"
-  },
-  {
-    id: 5,
-    fecha: "2024-01-14",
-    hora: "16:30",
-    total: 4200,
-    items: [
-      { producto: "Espresso", cantidad: 1, precio: 2000 },
-      { producto: "Muffin", cantidad: 1, precio: 2200 }
-    ],
-    metodoPago: "Efectivo"
-  }
-];
+import { useApp, Venta } from '@/contexts/AppContext';
 
 const HistorialView = () => {
-  const [ventas] = useState<Venta[]>(ventasEjemplo);
+  const { ventas } = useApp();
   const [filtroFecha, setFiltroFecha] = useState('');
   const [ventaSeleccionada, setVentaSeleccionada] = useState<Venta | null>(null);
 
@@ -160,37 +92,46 @@ const HistorialView = () => {
             <CardTitle>Historial de Ventas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {ventasFiltradas.map(venta => (
-                <div 
-                  key={venta.id} 
-                  className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => setVentaSeleccionada(venta)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Calendar className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">
-                          {venta.fecha} - {venta.hora}
-                        </span>
-                        <Badge variant={venta.metodoPago === 'Efectivo' ? 'default' : 'secondary'}>
-                          {venta.metodoPago}
-                        </Badge>
+            {ventas.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No hay ventas registradas</p>
+                <p className="text-sm text-gray-400 mt-2">
+                  Las ventas aparecerán aquí cuando se procesen en la vista de Ventas
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {ventasFiltradas.map(venta => (
+                  <div 
+                    key={venta.id} 
+                    className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => setVentaSeleccionada(venta)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Calendar className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm text-gray-600">
+                            {venta.fecha} - {venta.hora}
+                          </span>
+                          <Badge variant={venta.metodoPago === 'Efectivo' ? 'default' : 'secondary'}>
+                            {venta.metodoPago}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          {venta.items.length} producto(s)
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-600">
-                        {venta.items.length} producto(s)
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-green-600">
-                        ${venta.total.toLocaleString()}
-                      </p>
+                      <div className="text-right">
+                        <p className="text-xl font-bold text-green-600">
+                          ${venta.total.toLocaleString()}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -240,7 +181,7 @@ const HistorialView = () => {
                 </div>
               </div>
             </CardContent>
-          </Card>
+        </Card>
         )}
       </div>
     </div>
