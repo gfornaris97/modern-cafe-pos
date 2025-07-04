@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,12 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, Trash2 } from "lucide-react";
 import { useApp, Producto, ItemVenta } from '@/contexts/AppContext';
 import { useToast } from "@/hooks/use-toast";
+import PrintReceipt from './PrintReceipt';
 
 const VentaView = () => {
   const { productos, registrarVenta } = useApp();
   const { toast } = useToast();
   const [carrito, setCarrito] = useState<ItemVenta[]>([]);
   const [filtroCategoria, setFiltroCategoria] = useState<string>('todas');
+  const [ultimaVenta, setUltimaVenta] = useState<ItemVenta[] | null>(null);
+  const [totalUltimaVenta, setTotalUltimaVenta] = useState<number>(0);
 
   const categorias = ['todas', ...Array.from(new Set(productos.map(p => p.categoria)))];
 
@@ -90,6 +92,10 @@ const VentaView = () => {
       return;
     }
     
+    // Guardar la venta actual para poder imprimir el recibo
+    setUltimaVenta([...carrito]);
+    setTotalUltimaVenta(total);
+    
     registrarVenta(carrito, 'Efectivo');
     
     toast({
@@ -98,6 +104,11 @@ const VentaView = () => {
     });
     
     setCarrito([]);
+  };
+
+  const handlePrintComplete = () => {
+    setUltimaVenta(null);
+    setTotalUltimaVenta(0);
   };
 
   return (
@@ -159,9 +170,28 @@ const VentaView = () => {
           </CardHeader>
           <CardContent>
             {carrito.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
-                El carrito está vacío
-              </p>
+              <div>
+                <p className="text-gray-500 text-center py-8">
+                  El carrito está vacío
+                </p>
+                
+                {/* Mostrar opción de imprimir recibo de la última venta */}
+                {ultimaVenta && ultimaVenta.length > 0 && (
+                  <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h4 className="font-semibold text-green-800 mb-2">
+                      Última venta procesada
+                    </h4>
+                    <p className="text-sm text-green-700 mb-3">
+                      Total: ${totalUltimaVenta.toLocaleString()}
+                    </p>
+                    <PrintReceipt 
+                      items={ultimaVenta}
+                      total={totalUltimaVenta}
+                      onPrint={handlePrintComplete}
+                    />
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="space-y-4">
                 {carrito.map(item => (
