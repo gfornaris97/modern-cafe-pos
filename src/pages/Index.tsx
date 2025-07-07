@@ -2,16 +2,17 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Package, History, Coffee, LogOut, User, BarChart3 } from "lucide-react";
+import { ShoppingCart, Package, History, Coffee, LogOut, User, BarChart3, Calculator } from "lucide-react";
 import VentaView from '@/components/VentaView';
 import GestionView from '@/components/GestionView';
 import HistorialView from '@/components/HistorialView';
 import ReportesView from '@/components/ReportesView';
+import ControlCajaView from '@/components/ControlCajaView';
 import LoginView from '@/components/LoginView';
 import { AppProvider } from '@/contexts/AppContext';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
-type ViewType = 'venta' | 'gestion' | 'historial' | 'reportes';
+type ViewType = 'venta' | 'gestion' | 'historial' | 'reportes' | 'caja';
 
 const MainApp = () => {
   const { user, logout, hasRole } = useAuth();
@@ -27,6 +28,8 @@ const MainApp = () => {
         return <HistorialView />;
       case 'reportes':
         return <ReportesView />;
+      case 'caja':
+        return hasRole('admin') ? <ControlCajaView /> : <VentaView />;
       default:
         return <VentaView />;
     }
@@ -108,6 +111,17 @@ const MainApp = () => {
                 <BarChart3 className="h-4 w-4" />
                 <span>Reportes</span>
               </Button>
+              
+              {hasRole('admin') && (
+                <Button
+                  variant={currentView === 'caja' ? 'default' : 'ghost'}
+                  onClick={() => setCurrentView('caja')}
+                  className="flex items-center space-x-2 px-6 py-3 rounded-none"
+                >
+                  <Calculator className="h-4 w-4" />
+                  <span>Control Caja</span>
+                </Button>
+              )}
             </div>
           </div>
         </nav>

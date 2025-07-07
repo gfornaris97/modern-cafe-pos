@@ -7,12 +7,14 @@ import { ItemVenta } from '@/contexts/AppContext';
 interface PrintReceiptProps {
   items: ItemVenta[];
   total: number;
+  montoPagado?: number;
+  vuelto?: number;
   onPrint?: () => void;
 }
 
-const PrintReceipt = ({ items, total, onPrint }: PrintReceiptProps) => {
+const PrintReceipt = ({ items, total, montoPagado, vuelto, onPrint }: PrintReceiptProps) => {
   const printReceipt = () => {
-    const receiptContent = generateReceiptHTML(items, total);
+    const receiptContent = generateReceiptHTML(items, total, montoPagado, vuelto);
     
     // Crear ventana de impresión
     const printWindow = window.open('', '_blank', 'width=300,height=600');
@@ -32,7 +34,7 @@ const PrintReceipt = ({ items, total, onPrint }: PrintReceiptProps) => {
     }
   };
 
-  const generateReceiptHTML = (items: ItemVenta[], total: number) => {
+  const generateReceiptHTML = (items: ItemVenta[], total: number, montoPagado?: number, vuelto?: number) => {
     const now = new Date();
     const fecha = now.toLocaleDateString('es-ES');
     const hora = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
@@ -149,6 +151,8 @@ const PrintReceipt = ({ items, total, onPrint }: PrintReceiptProps) => {
         
         <div class="total">
           <p>TOTAL: $${total.toLocaleString()}</p>
+          ${montoPagado ? `<p>PAGADO: $${montoPagado.toLocaleString()}</p>` : ''}
+          ${vuelto && vuelto > 0 ? `<p style="font-size: 16px; margin-top: 5px;">VUELTO: $${vuelto.toLocaleString()}</p>` : ''}
         </div>
         
         <div class="footer">

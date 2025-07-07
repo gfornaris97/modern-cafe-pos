@@ -25,6 +25,8 @@ export interface Venta {
     precio: number;
   }>;
   metodoPago: string;
+  montoPagado?: number;
+  vuelto?: number;
 }
 
 interface AppContextType {
@@ -33,7 +35,7 @@ interface AppContextType {
   agregarProducto: (producto: Omit<Producto, 'id'>) => void;
   actualizarProducto: (producto: Producto) => void;
   eliminarProducto: (id: number) => void;
-  registrarVenta: (items: ItemVenta[], metodoPago: string) => void;
+  registrarVenta: (items: ItemVenta[], metodoPago: string, montoPagado?: number) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -71,7 +73,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setProductos(prev => prev.filter(p => p.id !== id));
   };
 
-  const registrarVenta = (items: ItemVenta[], metodoPago: string) => {
+  const registrarVenta = (items: ItemVenta[], metodoPago: string, montoPagado?: number) => {
     const ahora = new Date();
     const fecha = ahora.toISOString().split('T')[0];
     const hora = ahora.toTimeString().split(' ')[0].slice(0, 5);
@@ -87,7 +89,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         cantidad: item.cantidad,
         precio: item.producto.precio
       })),
-      metodoPago
+      metodoPago,
+      montoPagado: montoPagado || total,
+      vuelto: montoPagado ? Math.max(0, montoPagado - total) : 0
     };
 
     setVentas(prev => [nuevaVenta, ...prev]);
