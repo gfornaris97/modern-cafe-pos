@@ -2,15 +2,18 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Package, History, Coffee } from "lucide-react";
+import { ShoppingCart, Package, History, Coffee, LogOut, User } from "lucide-react";
 import VentaView from '@/components/VentaView';
 import GestionView from '@/components/GestionView';
 import HistorialView from '@/components/HistorialView';
+import LoginView from '@/components/LoginView';
 import { AppProvider } from '@/contexts/AppContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
 type ViewType = 'venta' | 'gestion' | 'historial';
 
-const Index = () => {
+const MainApp = () => {
+  const { user, logout, hasRole } = useAuth();
   const [currentView, setCurrentView] = useState<ViewType>('venta');
 
   const renderView = () => {
@@ -18,7 +21,7 @@ const Index = () => {
       case 'venta':
         return <VentaView />;
       case 'gestion':
-        return <GestionView />;
+        return hasRole('admin') ? <GestionView /> : <VentaView />;
       case 'historial':
         return <HistorialView />;
       default:
@@ -37,8 +40,25 @@ const Index = () => {
                 <Coffee className="h-8 w-8 text-amber-600" />
                 <h1 className="text-2xl font-bold text-gray-800">Café POS</h1>
               </div>
-              <div className="text-sm text-gray-600">
-                Sistema de Punto de Venta
+              
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <User className="h-4 w-4" />
+                  <span>{user?.name}</span>
+                  <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs">
+                    {user?.role === 'admin' ? 'Administrador' : 'Cajero'}
+                  </span>
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  className="flex items-center space-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Salir</span>
+                </Button>
               </div>
             </div>
           </div>
@@ -56,14 +76,18 @@ const Index = () => {
                 <ShoppingCart className="h-4 w-4" />
                 <span>Ventas</span>
               </Button>
-              <Button
-                variant={currentView === 'gestion' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('gestion')}
-                className="flex items-center space-x-2 px-6 py-3 rounded-none"
-              >
-                <Package className="h-4 w-4" />
-                <span>Gestión</span>
-              </Button>
+              
+              {hasRole('admin') && (
+                <Button
+                  variant={currentView === 'gestion' ? 'default' : 'ghost'}
+                  onClick={() => setCurrentView('gestion')}
+                  className="flex items-center space-x-2 px-6 py-3 rounded-none"
+                >
+                  <Package className="h-4 w-4" />
+                  <span>Gestión</span>
+                </Button>
+              )}
+              
               <Button
                 variant={currentView === 'historial' ? 'default' : 'ghost'}
                 onClick={() => setCurrentView('historial')}
@@ -83,6 +107,24 @@ const Index = () => {
       </div>
     </AppProvider>
   );
+};
+
+const Index = () => {
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
+  );
+};
+
+const AuthenticatedApp = () => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoginView />;
+  }
+
+  return <MainApp />;
 };
 
 export default Index;
