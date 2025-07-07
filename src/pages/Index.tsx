@@ -2,15 +2,16 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Package, History, Coffee, LogOut, User } from "lucide-react";
+import { ShoppingCart, Package, History, Coffee, LogOut, User, BarChart3 } from "lucide-react";
 import VentaView from '@/components/VentaView';
 import GestionView from '@/components/GestionView';
 import HistorialView from '@/components/HistorialView';
+import ReportesView from '@/components/ReportesView';
 import LoginView from '@/components/LoginView';
 import { AppProvider } from '@/contexts/AppContext';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
-type ViewType = 'venta' | 'gestion' | 'historial';
+type ViewType = 'venta' | 'gestion' | 'historial' | 'reportes';
 
 const MainApp = () => {
   const { user, logout, hasRole } = useAuth();
@@ -24,6 +25,8 @@ const MainApp = () => {
         return hasRole('admin') ? <GestionView /> : <VentaView />;
       case 'historial':
         return <HistorialView />;
+      case 'reportes':
+        return <ReportesView />;
       default:
         return <VentaView />;
     }
@@ -95,6 +98,15 @@ const MainApp = () => {
               >
                 <History className="h-4 w-4" />
                 <span>Historial</span>
+              </Button>
+              
+              <Button
+                variant={currentView === 'reportes' ? 'default' : 'ghost'}
+                onClick={() => setCurrentView('reportes')}
+                className="flex items-center space-x-2 px-6 py-3 rounded-none"
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span>Reportes</span>
               </Button>
             </div>
           </div>
