@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2 } from "lucide-react";
 import { useApp, Producto } from '@/contexts/AppContext';
+import { StockAlertsCard } from './StockAlerts';
 
 const GestionView = () => {
   const { productos, agregarProducto, actualizarProducto, eliminarProducto } = useApp();
@@ -56,9 +57,13 @@ const GestionView = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Formulario */}
-      <div>
+    <div className="space-y-6">
+      {/* Alertas de Stock */}
+      <StockAlertsCard />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Formulario */}
+        <div>
         <Card>
           <CardHeader>
             <CardTitle>
@@ -167,6 +172,7 @@ const GestionView = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

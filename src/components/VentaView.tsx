@@ -8,11 +8,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Minus, Trash2, DollarSign, Calculator } from "lucide-react";
 import { useApp, Producto, ItemVenta } from '@/contexts/AppContext';
+import { useTurno } from '@/contexts/TurnoContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 import PrintReceipt from './PrintReceipt';
+import StockAlerts from './StockAlerts';
 
 const VentaView = () => {
   const { productos, registrarVenta } = useApp();
+  const { turnoActual, actualizarTurno } = useTurno();
+  const { user, hasRole } = useAuth();
   const { toast } = useToast();
   const [carrito, setCarrito] = useState<ItemVenta[]>([]);
   const [filtroCategoria, setFiltroCategoria] = useState<string>('todas');
@@ -98,6 +103,16 @@ const VentaView = () => {
       return;
     }
     
+    // Verificar que hay turno abierto para cajeros
+    if (!hasRole('admin') && !turnoActual) {
+      toast({
+        title: "Turno no iniciado",
+        description: "No hay turno abierto. Solicita al administrador que abra un turno",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Abrir modal de pago
     setModalPago(true);
     setMontoPagado(total.toString());
@@ -127,6 +142,11 @@ const VentaView = () => {
     
     registrarVenta(carrito, metodoPago, monto);
     
+    // Actualizar turno con nueva venta
+    if (turnoActual) {
+      actualizarTurno(turnoActual.ventasRealizadas + 1, turnoActual.totalVentas + total);
+    }
+    
     toast({
       title: "Venta procesada",
       description: vuelto > 0 
@@ -147,9 +167,48 @@ const VentaView = () => {
   const vuelto = montoPagado ? Math.max(0, Number(montoPagado) - total) : 0;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Productos */}
-      <div className="lg:col-span-2">
+    <div className="space-y-6">
+      {/* Alertas de stock */}
+      <StockAlerts />
+      
+      {/* Información del turno para cajeros */}
+      {!hasRole('admin') && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Calculator className="h-5 w-5" />
+              <span>Estado del Turno</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {turnoActual ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <p className="text-sm text-gray-600">Turno abierto por</p>
+                  <p className="font-semibold">{turnoActual.cajero}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-gray-600">Inicio</p>
+                  <p className="font-semibold">{turnoActual.fechaApertura} - {turnoActual.horaApertura}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-gray-600">Ventas del turno</p>
+                  <p className="font-semibold text-green-600">{turnoActual.ventasRealizadas}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-red-600 font-semibold">No hay turno abierto</p>
+                <p className="text-sm text-gray-600">Solicita al administrador que abra un turno</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Productos */}
+        <div className="lg:col-span-2">
         <Card>
           <CardHeader>
             <CardTitle>Productos</CardTitle>
@@ -289,6 +348,7 @@ const VentaView = () => {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
 
       {/* Modal de Pago */}

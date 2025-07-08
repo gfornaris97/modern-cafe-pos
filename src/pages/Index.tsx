@@ -11,6 +11,9 @@ import ControlCajaView from '@/components/ControlCajaView';
 import LoginView from '@/components/LoginView';
 import { AppProvider } from '@/contexts/AppContext';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { TurnoProvider } from '@/contexts/TurnoContext';
+import StockAlerts from '@/components/StockAlerts';
+import TurnoStatus from '@/components/TurnoStatus';
 
 type ViewType = 'venta' | 'gestion' | 'historial' | 'reportes' | 'caja';
 
@@ -36,8 +39,9 @@ const MainApp = () => {
   };
 
   return (
-    <AppProvider>
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100">
+    <TurnoProvider>
+      <AppProvider>
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100">
         {/* Header */}
         <header className="bg-white shadow-md border-b border-amber-200">
           <div className="container mx-auto px-4 py-4">
@@ -128,10 +132,15 @@ const MainApp = () => {
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-6">
+          <div className="mb-6 space-y-4">
+            <TurnoStatus />
+            <StockAlerts />
+          </div>
           {renderView()}
         </main>
-      </div>
-    </AppProvider>
+        </div>
+      </AppProvider>
+    </TurnoProvider>
   );
 };
 

@@ -17,36 +17,14 @@ import {
 } from "lucide-react";
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTurno } from '@/contexts/TurnoContext';
 import { useToast } from "@/hooks/use-toast";
-
-interface Turno {
-  id: string;
-  fechaApertura: string;
-  horaApertura: string;
-  fechaCierre?: string;
-  horaCierre?: string;
-  cajero: string;
-  montoApertura: number;
-  montoCierre?: number;
-  ventasRealizadas: number;
-  totalVentas: number;
-  estado: 'abierto' | 'cerrado';
-}
 
 const ControlCajaView = () => {
   const { ventas } = useApp();
   const { user } = useAuth();
+  const { turnoActual, turnos, abrirTurno, cerrarTurno } = useTurno();
   const { toast } = useToast();
-  
-  const [turnoActual, setTurnoActual] = useState<Turno | null>(() => {
-    const turnoGuardado = localStorage.getItem('cafe-pos-turno');
-    return turnoGuardado ? JSON.parse(turnoGuardado) : null;
-  });
-  
-  const [turnos, setTurnos] = useState<Turno[]>(() => {
-    const turnosGuardados = localStorage.getItem('cafe-pos-turnos');
-    return turnosGuardados ? JSON.parse(turnosGuardados) : [];
-  });
   
   const [montoApertura, setMontoApertura] = useState('');
   const [montoCierre, setMontoCierre] = useState('');
@@ -62,7 +40,7 @@ const ControlCajaView = () => {
 
   const totalVentasTurno = ventasDelTurno.reduce((sum, venta) => sum + venta.total, 0);
 
-  const abrirTurno = () => {
+  const handleAbrirTurno = () => {
     if (!montoApertura || isNaN(Number(montoApertura))) {
       toast({
         title: "Error",
@@ -72,20 +50,7 @@ const ControlCajaView = () => {
       return;
     }
 
-    const ahora = new Date();
-    const nuevoTurno: Turno = {
-      id: Date.now().toString(),
-      fechaApertura: ahora.toISOString().split('T')[0],
-      horaApertura: ahora.toTimeString().split(' ')[0].slice(0, 5),
-      cajero: user?.name || 'Usuario',
-      montoApertura: Number(montoApertura),
-      ventasRealizadas: 0,
-      totalVentas: 0,
-      estado: 'abierto'
-    };
-
-    setTurnoActual(nuevoTurno);
-    localStorage.setItem('cafe-pos-turno', JSON.stringify(nuevoTurno));
+    abrirTurno(Number(montoApertura), user?.name || 'Usuario');
     
     toast({
       title: "Turno abierto",
@@ -96,7 +61,7 @@ const ControlCajaView = () => {
     setModalApertura(false);
   };
 
-  const cerrarTurno = () => {
+  const handleCerrarTurno = () => {
     if (!turnoActual) return;
     
     if (!montoCierre || isNaN(Number(montoCierre))) {
@@ -108,25 +73,7 @@ const ControlCajaView = () => {
       return;
     }
 
-    const ahora = new Date();
-    const turnoCerrado: Turno = {
-      ...turnoActual,
-      fechaCierre: ahora.toISOString().split('T')[0],
-      horaCierre: ahora.toTimeString().split(' ')[0].slice(0, 5),
-      montoCierre: Number(montoCierre),
-      ventasRealizadas: ventasDelTurno.length,
-      totalVentas: totalVentasTurno,
-      estado: 'cerrado'
-    };
-
-    // Guardar turno cerrado en historial
-    const nuevosTurnos = [...turnos, turnoCerrado];
-    setTurnos(nuevosTurnos);
-    localStorage.setItem('cafe-pos-turnos', JSON.stringify(nuevosTurnos));
-    
-    // Limpiar turno actual
-    setTurnoActual(null);
-    localStorage.removeItem('cafe-pos-turno');
+    cerrarTurno(Number(montoCierre), ventasDelTurno.length, totalVentasTurno);
     
     toast({
       title: "Turno cerrado",
@@ -264,10 +211,10 @@ const ControlCajaView = () => {
                     Ingresa el dinero en efectivo con el que inicias
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  <Button onClick={abrirTurno} className="flex-1">
-                    Abrir Turno
-                  </Button>
+                 <div className="flex gap-2">
+                   <Button onClick={handleAbrirTurno} className="flex-1">
+                     Abrir Turno
+                   </Button>
                   <Button 
                     variant="outline" 
                     onClick={() => setModalApertura(false)}
@@ -342,10 +289,10 @@ const ControlCajaView = () => {
                   </div>
                 )}
                 
-                <div className="flex gap-2">
-                  <Button onClick={cerrarTurno} className="flex-1">
-                    Cerrar Turno
-                  </Button>
+                 <div className="flex gap-2">
+                   <Button onClick={handleCerrarTurno} className="flex-1">
+                     Cerrar Turno
+                   </Button>
                   <Button 
                     variant="outline" 
                     onClick={() => setModalCierre(false)}
