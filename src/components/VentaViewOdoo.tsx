@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Minus, Trash2, DollarSign, Calculator, Search, Grid, List, ShoppingCart } from "lucide-react";
 import { useApp, Producto, ItemVenta } from '@/contexts/AppContext';
@@ -23,7 +23,6 @@ const VentaViewOdoo = () => {
   const [filtroCategoria, setFiltroCategoria] = useState<string>('todas');
   const [busqueda, setBusqueda] = useState('');
   const [ultimaVenta, setUltimaVenta] = useState<{items: ItemVenta[], total: number, montoPagado: number, vuelto: number} | null>(null);
-  const [modalPago, setModalPago] = useState(false);
   const [metodoPago, setMetodoPago] = useState('efectivo');
   const [montoPagado, setMontoPagado] = useState('');
   const [vistaGrid, setVistaGrid] = useState(true);
@@ -97,7 +96,8 @@ const VentaViewOdoo = () => {
 
   const total = carrito.reduce((sum, item) => sum + (item.producto.precio * item.cantidad), 0);
 
-  const procesarVenta = () => {
+
+  const confirmarVenta = () => {
     if (carrito.length === 0) {
       toast({
         title: "Carrito vacío",
@@ -117,12 +117,6 @@ const VentaViewOdoo = () => {
       return;
     }
     
-    // Abrir modal de pago
-    setModalPago(true);
-    setMontoPagado(total.toString());
-  };
-
-  const confirmarVenta = () => {
     const monto = Number(montoPagado);
     
     if (isNaN(monto) || monto < total) {
@@ -159,7 +153,6 @@ const VentaViewOdoo = () => {
     });
     
     setCarrito([]);
-    setModalPago(false);
     setMontoPagado('');
     setMetodoPago('efectivo');
   };
@@ -211,7 +204,177 @@ const VentaViewOdoo = () => {
       )}
       
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
-        {/* Panel de productos */}
+        {/* Panel Calculadora (izquierda) */}
+        <div className="flex flex-col min-h-0">
+          <Card className="flex-1 flex flex-col min-h-0">
+            <CardHeader className="flex-shrink-0">
+              <CardTitle className="flex items-center space-x-2">
+                <Calculator className="h-5 w-5" />
+                <span>Calculadora de Venta</span>
+              </CardTitle>
+            </CardHeader>
+            
+            <CardContent className="flex-1 flex flex-col min-h-0 space-y-4">
+              {/* Carrito de compras */}
+              <div className="flex-1 min-h-0">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold flex items-center space-x-2">
+                    <ShoppingCart className="h-4 w-4" />
+                    <span>Carrito ({carrito.length})</span>
+                  </h3>
+                  {carrito.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCarrito([])}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Limpiar
+                    </Button>
+                  )}
+                </div>
+                
+                {carrito.length === 0 ? (
+                  <div className="text-center space-y-3 py-8">
+                    <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto" />
+                    <p className="text-muted-foreground text-sm">Carrito vacío</p>
+                    <p className="text-xs text-muted-foreground">
+                      Selecciona productos para comenzar
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-auto">
+                    {carrito.map(item => (
+                      <div key={item.producto.id} className="flex items-center justify-between p-2 bg-accent/50 rounded-lg">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm leading-tight truncate">{item.producto.nombre}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            ${item.producto.precio.toLocaleString()} c/u
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-6 w-6 p-0"
+                            onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="w-6 text-center text-sm font-medium">{item.cantidad}</span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-6 w-6 p-0"
+                            onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="h-6 w-6 p-0"
+                            onClick={() => actualizarCantidad(item.producto.id, 0)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Calculadora de totales */}
+              <div className="border-t pt-4 space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Subtotal:</span>
+                    <span className="text-sm">${total.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold">Total:</span>
+                    <span className="text-lg font-bold text-green-600">${total.toLocaleString()}</span>
+                  </div>
+                </div>
+                
+                {/* Calculadora de pago */}
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="monto-pago">Monto recibido:</Label>
+                    <Input
+                      id="monto-pago"
+                      type="number"
+                      placeholder="0"
+                      value={montoPagado}
+                      onChange={(e) => setMontoPagado(e.target.value)}
+                      className="text-xl font-bold text-center"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="metodo-pago">Método de pago:</Label>
+                    <Select value={metodoPago} onValueChange={setMetodoPago}>
+                      <SelectTrigger id="metodo-pago">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="efectivo">Efectivo</SelectItem>
+                        <SelectItem value="tarjeta">Tarjeta</SelectItem>
+                        <SelectItem value="transferencia">Transferencia</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {montoPagado && Number(montoPagado) >= total && (
+                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-800 dark:text-green-200 font-medium">Vuelto:</span>
+                        <span className="text-green-800 dark:text-green-200 font-bold text-lg">
+                          ${vuelto.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <Button 
+                  className="w-full"
+                  onClick={confirmarVenta}
+                  disabled={carrito.length === 0 || !montoPagado || Number(montoPagado) < total}
+                >
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Procesar Venta
+                </Button>
+                
+                {/* Mostrar opción de imprimir recibo de la última venta */}
+                {ultimaVenta && (
+                  <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2 text-sm">
+                      Última venta procesada
+                    </h4>
+                    <div className="space-y-1 text-xs text-green-700 dark:text-green-300 mb-3">
+                      <p>Total: ${ultimaVenta.total.toLocaleString()}</p>
+                      <p>Pagado: ${ultimaVenta.montoPagado.toLocaleString()}</p>
+                      {ultimaVenta.vuelto > 0 && (
+                        <p className="font-semibold">Vuelto: ${ultimaVenta.vuelto.toLocaleString()}</p>
+                      )}
+                    </div>
+                    <PrintReceipt 
+                      items={ultimaVenta.items}
+                      total={ultimaVenta.total}
+                      montoPagado={ultimaVenta.montoPagado}
+                      vuelto={ultimaVenta.vuelto}
+                      onPrint={handlePrintComplete}
+                    />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Panel de productos (derecha) */}
         <div className="lg:col-span-2 flex flex-col min-h-0">
           <Card className="flex-1 flex flex-col min-h-0">
             <CardHeader className="flex-shrink-0 pb-4">
@@ -331,195 +494,8 @@ const VentaViewOdoo = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Panel del carrito */}
-        <div className="flex flex-col min-h-0">
-          <Card className="flex-1 flex flex-col min-h-0">
-            <CardHeader className="flex-shrink-0">
-              <CardTitle className="flex items-center space-x-2">
-                <ShoppingCart className="h-5 w-5" />
-                <span>Carrito ({carrito.length})</span>
-              </CardTitle>
-            </CardHeader>
-            
-            <CardContent className="flex-1 flex flex-col min-h-0">
-              {carrito.length === 0 ? (
-                <div className="flex-1 flex flex-col justify-center">
-                  <div className="text-center space-y-4">
-                    <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto" />
-                    <p className="text-muted-foreground">El carrito está vacío</p>
-                    <p className="text-sm text-muted-foreground">
-                      Selecciona productos para comenzar una venta
-                    </p>
-                    
-                    {/* Mostrar opción de imprimir recibo de la última venta */}
-                    {ultimaVenta && (
-                      <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                        <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">
-                          Última venta procesada
-                        </h4>
-                        <div className="space-y-1 text-sm text-green-700 dark:text-green-300 mb-3">
-                          <p>Total: ${ultimaVenta.total.toLocaleString()}</p>
-                          <p>Pagado: ${ultimaVenta.montoPagado.toLocaleString()}</p>
-                          {ultimaVenta.vuelto > 0 && (
-                            <p className="font-semibold">Vuelto: ${ultimaVenta.vuelto.toLocaleString()}</p>
-                          )}
-                        </div>
-                        <PrintReceipt 
-                          items={ultimaVenta.items}
-                          total={ultimaVenta.total}
-                          montoPagado={ultimaVenta.montoPagado}
-                          vuelto={ultimaVenta.vuelto}
-                          onPrint={handlePrintComplete}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex-1 overflow-auto space-y-3">
-                    {carrito.map(item => (
-                      <div key={item.producto.id} className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm leading-tight">{item.producto.nombre}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            ${item.producto.precio.toLocaleString()} c/u
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 w-8 p-0"
-                            onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="w-8 text-center text-sm font-medium">{item.cantidad}</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 w-8 p-0"
-                            onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="h-8 w-8 p-0"
-                            onClick={() => actualizarCantidad(item.producto.id, 0)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="border-t pt-4 mt-4 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold">Total:</span>
-                      <span className="text-2xl font-bold text-green-600">
-                        ${total.toLocaleString()}
-                      </span>
-                    </div>
-                    <Button 
-                      className="w-full" 
-                      size="lg"
-                      onClick={procesarVenta}
-                    >
-                      <DollarSign className="h-4 w-4 mr-2" />
-                      Procesar Venta
-                    </Button>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
       </div>
 
-      {/* Modal de Pago */}
-      <Dialog open={modalPago} onOpenChange={setModalPago}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5" />
-              <span>Procesar Pago</span>
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="bg-accent p-4 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-lg font-semibold">Total a pagar:</span>
-                <span className="text-2xl font-bold text-green-600">
-                  ${total.toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="metodoPago">Método de pago</Label>
-                <Select value={metodoPago} onValueChange={setMetodoPago}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="efectivo">Efectivo</SelectItem>
-                    <SelectItem value="tarjeta">Tarjeta</SelectItem>
-                    <SelectItem value="transferencia">Transferencia</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {metodoPago === 'efectivo' && (
-                <div>
-                  <Label htmlFor="montoPagado">Monto recibido</Label>
-                  <Input
-                    id="montoPagado"
-                    type="number"
-                    value={montoPagado}
-                    onChange={(e) => setMontoPagado(e.target.value)}
-                    placeholder="0"
-                    min={total}
-                  />
-                  {montoPagado && Number(montoPagado) >= total && (
-                    <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <span className="text-blue-800 dark:text-blue-200 font-medium">Vuelto:</span>
-                        <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                          ${vuelto.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-3">
-              <Button 
-                onClick={confirmarVenta} 
-                className="flex-1"
-                disabled={metodoPago === 'efectivo' && (!montoPagado || Number(montoPagado) < total)}
-              >
-                <Calculator className="h-4 w-4 mr-2" />
-                Confirmar Venta
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setModalPago(false)}
-              >
-                Cancelar
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
