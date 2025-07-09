@@ -52,8 +52,24 @@ const productosIniciales: Producto[] = [
 ];
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [productos, setProductos] = useState<Producto[]>(productosIniciales);
-  const [ventas, setVentas] = useState<Venta[]>([]);
+  const [productos, setProductos] = useState<Producto[]>(() => {
+    const productosGuardados = localStorage.getItem('cafe-pos-productos');
+    return productosGuardados ? JSON.parse(productosGuardados) : productosIniciales;
+  });
+  const [ventas, setVentas] = useState<Venta[]>(() => {
+    const ventasGuardadas = localStorage.getItem('cafe-pos-ventas');
+    return ventasGuardadas ? JSON.parse(ventasGuardadas) : [];
+  });
+
+  // Sincronizar productos con localStorage
+  React.useEffect(() => {
+    localStorage.setItem('cafe-pos-productos', JSON.stringify(productos));
+  }, [productos]);
+
+  // Sincronizar ventas con localStorage  
+  React.useEffect(() => {
+    localStorage.setItem('cafe-pos-ventas', JSON.stringify(ventas));
+  }, [ventas]);
 
   const agregarProducto = (nuevoProducto: Omit<Producto, 'id'>) => {
     const producto: Producto = {
