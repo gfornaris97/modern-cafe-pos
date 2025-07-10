@@ -3,13 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Minus, Trash2, DollarSign, Search, ShoppingCart, User } from "lucide-react";
+import { Plus, Minus, Trash2, DollarSign, ShoppingCart } from "lucide-react";
 import { useApp, Producto, ItemVenta } from '@/contexts/AppContext';
 import { useTurno } from '@/contexts/TurnoContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 import PrintReceipt from './PrintReceipt';
-import StockAlerts from './StockAlerts';
 
 const VentaViewOdoo = () => {
   const { productos, registrarVenta } = useApp();
@@ -18,7 +17,6 @@ const VentaViewOdoo = () => {
   const { toast } = useToast();
   const [carrito, setCarrito] = useState<ItemVenta[]>([]);
   const [filtroCategoria, setFiltroCategoria] = useState<string>('todas');
-  const [busqueda, setBusqueda] = useState('');
   const [ultimaVenta, setUltimaVenta] = useState<{items: ItemVenta[], total: number, montoPagado: number, vuelto: number} | null>(null);
   const [metodoPago, setMetodoPago] = useState('efectivo');
   const [montoPagado, setMontoPagado] = useState('');
@@ -26,9 +24,7 @@ const VentaViewOdoo = () => {
   const categorias = ['todas', ...Array.from(new Set(productos.map(p => p.categoria)))];
 
   const productosFiltrados = productos.filter(producto => {
-    const matchCategoria = filtroCategoria === 'todas' || producto.categoria === filtroCategoria;
-    const matchBusqueda = producto.nombre.toLowerCase().includes(busqueda.toLowerCase());
-    return matchCategoria && matchBusqueda;
+    return filtroCategoria === 'todas' || producto.categoria === filtroCategoria;
   });
 
   const agregarAlCarrito = (producto: Producto) => {
@@ -155,34 +151,59 @@ const VentaViewOdoo = () => {
 
   const vuelto = montoPagado ? Math.max(0, Number(montoPagado) - total) : 0;
 
+  const NumericKeypad = () => {
+    const buttons = [
+      ['7', '8', '9'],
+      ['4', '5', '6'],
+      ['1', '2', '3'],
+      ['C', '0', '←']
+    ];
+
+    const handleKeypadClick = (value: string) => {
+      if (value === 'C') {
+        setMontoPagado('');
+      } else if (value === '←') {
+        setMontoPagado(prev => prev.slice(0, -1));
+      } else {
+        setMontoPagado(prev => {
+          const newValue = prev + value;
+          return newValue;
+        });
+      }
+    };
+
+    return (
+      <div className="space-y-2">
+        {buttons.map((row, rowIndex) => (
+          <div key={rowIndex} className="grid grid-cols-3 gap-2">
+            {row.map((button) => (
+              <Button
+                key={button}
+                variant="outline"
+                className="h-12 text-lg font-medium"
+                onClick={() => handleKeypadClick(button)}
+              >
+                {button}
+              </Button>
+            ))}
+          </div>
+        ))}
+        <Button 
+          className="w-full h-12 text-lg mt-3"
+          onClick={confirmarVenta}
+          disabled={carrito.length === 0 || !montoPagado || Number(montoPagado) < total}
+        >
+          <DollarSign className="h-5 w-5 mr-2" />
+          Procesar Venta
+        </Button>
+      </div>
+    );
+  };
+
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold">Punto de Venta</h1>
-          {!hasRole('admin') && turnoActual && (
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <User className="h-4 w-4" />
-              <span>{turnoActual.cajero}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center space-x-4">
-          <Search className="h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Buscar productos..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="w-64"
-          />
-        </div>
-      </div>
-
-      <StockAlerts />
-
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-120px)]">
+      <div className="flex h-full">
         {/* Columna izquierda - Carrito y Pago */}
         <div className="w-96 bg-white dark:bg-gray-800 border-r p-4 flex flex-col">
           {/* Lista de productos en el carrito */}
@@ -246,13 +267,11 @@ const VentaViewOdoo = () => {
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium mb-1">Monto recibido:</label>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={montoPagado}
-                  onChange={(e) => setMontoPagado(e.target.value)}
-                  className="text-xl font-bold text-center"
-                />
+                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
+                  <span className="text-2xl font-bold">
+                    ${montoPagado ? Number(montoPagado).toLocaleString() : '0'}
+                  </span>
+                </div>
               </div>
               
               <div>
@@ -268,6 +287,8 @@ const VentaViewOdoo = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              <NumericKeypad />
               
               {montoPagado && Number(montoPagado) >= total && (
                 <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
@@ -277,15 +298,6 @@ const VentaViewOdoo = () => {
                 </div>
               )}
             </div>
-            
-            <Button 
-              className="w-full h-12 text-lg"
-              onClick={confirmarVenta}
-              disabled={carrito.length === 0 || !montoPagado || Number(montoPagado) < total}
-            >
-              <DollarSign className="h-5 w-5 mr-2" />
-              Procesar Venta
-            </Button>
             
             {ultimaVenta && (
               <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
