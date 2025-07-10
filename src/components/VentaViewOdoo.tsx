@@ -203,7 +203,13 @@ const VentaViewOdoo = () => {
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-900">
       {/* Main Content */}
-      <div className="flex h-full">
+      <div className="flex h-full relative">
+        {/* Indicador pequeño de turno */}
+        {!hasRole('admin') && turnoActual && (
+          <div className="absolute top-2 right-2 z-10 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-xs">
+            Turno: {turnoActual.cajero}
+          </div>
+        )}
         {/* Columna izquierda - Carrito y Pago - Más ancha */}
         <div className="w-[480px] bg-white dark:bg-gray-800 border-r p-4 flex flex-col">
           {/* Lista de productos en el carrito */}
