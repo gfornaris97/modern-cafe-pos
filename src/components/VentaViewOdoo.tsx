@@ -204,10 +204,10 @@ const VentaViewOdoo = () => {
     <div className="h-screen bg-gray-100 dark:bg-gray-900">
       {/* Main Content */}
       <div className="flex h-full">
-        {/* Columna izquierda - Carrito y Pago */}
-        <div className="w-96 bg-white dark:bg-gray-800 border-r p-4 flex flex-col">
+        {/* Columna izquierda - Carrito y Pago - Más ancha */}
+        <div className="w-[480px] bg-white dark:bg-gray-800 border-r p-4 flex flex-col">
           {/* Lista de productos en el carrito */}
-          <div className="flex-1 mb-4">
+          <div className="flex-1 mb-4 overflow-hidden">
             <h2 className="text-lg font-semibold mb-4">Carrito</h2>
             {carrito.length === 0 ? (
               <div className="text-center py-8">
@@ -215,7 +215,7 @@ const VentaViewOdoo = () => {
                 <p className="text-muted-foreground">Carrito vacío</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 overflow-y-auto h-full max-h-[40vh]">
                 {carrito.map(item => (
                   <div key={item.producto.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="flex-1">
@@ -316,10 +316,10 @@ const VentaViewOdoo = () => {
           </div>
         </div>
 
-        {/* Columna derecha - Productos */}
-        <div className="flex-1 p-4">
+        {/* Columna derecha - Productos - Más compacta */}
+        <div className="flex-1 p-4 overflow-hidden flex flex-col">
           {/* Filtros de categoría */}
-          <div className="mb-4">
+          <div className="mb-4 flex-shrink-0">
             <div className="flex flex-wrap gap-2">
               {categorias.map(categoria => (
                 <Button
@@ -335,34 +335,36 @@ const VentaViewOdoo = () => {
             </div>
           </div>
 
-          {/* Grid de productos */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {productosFiltrados.map(producto => (
-              <Card 
-                key={producto.id} 
-                className={`cursor-pointer hover:shadow-lg transition-all duration-200 ${
-                  producto.stock <= 0 ? 'opacity-50' : ''
-                }`}
-                onClick={() => agregarAlCarrito(producto)}
-              >
-                <CardContent className="p-4">
-                  <div className="text-center space-y-2">
-                    <div className="h-20 bg-gradient-to-br from-primary/10 to-primary/20 rounded-lg flex items-center justify-center mb-3">
-                      <span className="text-2xl font-bold text-primary">
-                        {producto.nombre.charAt(0)}
-                      </span>
+          {/* Grid de productos con scroll */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              {productosFiltrados.map(producto => (
+                <Card 
+                  key={producto.id} 
+                  className={`cursor-pointer hover:shadow-lg transition-all duration-200 ${
+                    producto.stock <= 0 ? 'opacity-50' : ''
+                  }`}
+                  onClick={() => agregarAlCarrito(producto)}
+                >
+                  <CardContent className="p-3">
+                    <div className="text-center space-y-1">
+                      <div className="h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-lg flex items-center justify-center mb-2">
+                        <span className="text-lg font-bold text-primary">
+                          {producto.nombre.charAt(0)}
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-xs leading-tight line-clamp-2">{producto.nombre}</h3>
+                      <p className="text-sm font-bold text-green-600">
+                        ${producto.precio.toLocaleString()}
+                      </p>
+                      <p className={`text-xs ${producto.stock < 10 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                        {producto.stock}
+                      </p>
                     </div>
-                    <h3 className="font-semibold text-sm leading-tight">{producto.nombre}</h3>
-                    <p className="text-lg font-bold text-green-600">
-                      ${producto.precio.toLocaleString()}
-                    </p>
-                    <p className={`text-xs ${producto.stock < 10 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                      Stock: {producto.stock}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </div>
