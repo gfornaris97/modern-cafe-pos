@@ -98,14 +98,6 @@ const VentaViewOdoo = () => {
       return;
     }
     
-    if (!hasRole('admin') && !turnoActual) {
-      toast({
-        title: "Turno no iniciado",
-        description: "No hay turno abierto. Solicita al administrador que abra un turno",
-        variant: "destructive"
-      });
-      return;
-    }
     
     const monto = Number(montoPagado);
     
@@ -201,15 +193,31 @@ const VentaViewOdoo = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
+      {/* Barra superior con información del turno */}
+      <div className="h-8 bg-white dark:bg-gray-800 border-b px-4 flex items-center justify-between text-xs">
+        <div className="flex items-center space-x-4">
+          {hasRole('admin') ? (
+            <span className="text-blue-600 dark:text-blue-400 font-medium">👑 Administrador</span>
+          ) : (
+            <span className="text-gray-600 dark:text-gray-400">Usuario</span>
+          )}
+        </div>
+        <div className="flex items-center space-x-2">
+          {turnoActual ? (
+            <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+              Turno: {turnoActual.cajero}
+            </span>
+          ) : (
+            <span className="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+              Sin turno
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* Main Content */}
-      <div className="flex h-full relative">
-        {/* Indicador pequeño de turno */}
-        {!hasRole('admin') && turnoActual && (
-          <div className="absolute top-2 right-2 z-10 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-xs">
-            Turno: {turnoActual.cajero}
-          </div>
-        )}
+      <div className="flex flex-1">
         {/* Columna izquierda - Carrito y Pago - Más ancha */}
         <div className="w-[480px] bg-white dark:bg-gray-800 border-r p-4 flex flex-col">
           {/* Lista de productos en el carrito */}
