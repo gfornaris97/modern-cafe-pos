@@ -258,26 +258,26 @@ const VentaViewOdoo = () => {
           </div>
 
           {/* Totales */}
-          <div className="border-t pt-4 space-y-4">
+          <div className="border-t pt-4 space-y-3">
             <div className="text-right">
               <p className="text-2xl font-bold">Total: ${total.toLocaleString()}</p>
             </div>
 
-            {/* Pago */}
-            <div className="space-y-3">
+            {/* Fila compacta: Monto y Método de pago */}
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1">Monto recibido:</label>
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
-                  <span className="text-2xl font-bold">
+                <label className="block text-xs font-medium mb-1">Monto recibido:</label>
+                <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded text-center">
+                  <span className="text-lg font-bold">
                     ${montoPagado ? Number(montoPagado).toLocaleString() : '0'}
                   </span>
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">Método de pago:</label>
+                <label className="block text-xs font-medium mb-1">Método:</label>
                 <Select value={metodoPago} onValueChange={setMetodoPago}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -287,18 +287,18 @@ const VentaViewOdoo = () => {
                   </SelectContent>
                 </Select>
               </div>
-
-              <NumericKeypad />
-              
-              {montoPagado && Number(montoPagado) >= total && (
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <p className="text-green-800 dark:text-green-200 font-bold text-lg">
-                    Vuelto: ${vuelto.toLocaleString()}
-                  </p>
-                </div>
-              )}
             </div>
-            
+
+            <NumericKeypad />
+              
+            {montoPagado && Number(montoPagado) >= total && (
+              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p className="text-green-800 dark:text-green-200 font-bold">
+                  Vuelto: ${vuelto.toLocaleString()}
+                </p>
+              </div>
+            )}
+
             {ultimaVenta && (
               <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">
