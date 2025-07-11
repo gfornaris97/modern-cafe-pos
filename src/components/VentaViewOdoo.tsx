@@ -83,6 +83,14 @@ const VentaViewOdoo = () => {
       return;
     }
     
+    if (!hasRole('admin') && !turnoActual) {
+      toast({
+        title: "Turno no iniciado",
+        description: "No hay turno abierto. Solicita al administrador que abra un turno",
+        variant: "destructive"
+      });
+      return;
+    }
     
     const monto = Number(montoPagado);
     
@@ -168,7 +176,7 @@ const VentaViewOdoo = () => {
         <Button 
           className="w-full h-8 text-sm mt-2"
           onClick={confirmarVenta}
-          disabled={carrito.length === 0 || !montoPagado || Number(montoPagado) < total}
+          disabled={carrito.length === 0 || !montoPagado || Number(montoPagado) < total || (!hasRole('admin') && !turnoActual)}
         >
           <DollarSign className="h-4 w-4 mr-1" />
           Procesar Venta
