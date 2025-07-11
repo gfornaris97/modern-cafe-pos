@@ -150,14 +150,14 @@ const VentaViewOdoo = () => {
     };
 
     return (
-      <div className="space-y-2">
+      <div className="space-y-1">
         {buttons.map((row, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-3 gap-2">
+          <div key={rowIndex} className="grid grid-cols-3 gap-1">
             {row.map((button) => (
               <Button
                 key={button}
                 variant="outline"
-                className="h-12 text-lg font-medium"
+                className="h-8 text-sm font-medium"
                 onClick={() => handleKeypadClick(button)}
               >
                 {button}
@@ -166,11 +166,11 @@ const VentaViewOdoo = () => {
           </div>
         ))}
         <Button 
-          className="w-full h-12 text-lg mt-3"
+          className="w-full h-8 text-sm mt-2"
           onClick={confirmarVenta}
           disabled={carrito.length === 0 || !montoPagado || Number(montoPagado) < total}
         >
-          <DollarSign className="h-5 w-5 mr-2" />
+          <DollarSign className="h-4 w-4 mr-1" />
           Procesar Venta
         </Button>
       </div>
@@ -180,51 +180,51 @@ const VentaViewOdoo = () => {
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-900">
       <div className="flex h-full">
-        {/* Columna izquierda - Carrito y Pago - Más ancha */}
-        <div className="w-[480px] bg-white dark:bg-gray-800 border-r p-4 flex flex-col">
+        {/* Columna izquierda - Carrito y Pago - Más compacta */}
+        <div className="w-[400px] bg-white dark:bg-gray-800 border-r p-3 flex flex-col">
           {/* Lista de productos en el carrito */}
-          <div className="flex-1 mb-4 overflow-hidden">
-            <h2 className="text-lg font-semibold mb-4">Carrito</h2>
+          <div className="flex-1 mb-3 overflow-hidden">
+            <h2 className="text-base font-semibold mb-3">Carrito</h2>
             {carrito.length === 0 ? (
               <div className="text-center py-8">
                 <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">Carrito vacío</p>
               </div>
             ) : (
-              <div className="space-y-2 overflow-y-auto h-full max-h-[40vh]">
+              <div className="space-y-2 overflow-y-auto h-full max-h-[35vh]">
                 {carrito.map(item => (
-                  <div key={item.producto.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div key={item.producto.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="flex-1">
-                      <h3 className="font-medium">{item.producto.nombre}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="font-medium text-sm">{item.producto.nombre}</h3>
+                      <p className="text-xs text-muted-foreground">
                         ${item.producto.precio.toLocaleString()} × {item.cantidad}
                       </p>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-8 w-8 p-0"
+                        className="h-6 w-6 p-0"
                         onClick={() => actualizarCantidad(item.producto.id, item.cantidad - 1)}
                       >
-                        <Minus className="h-3 w-3" />
+                        <Minus className="h-2 w-2" />
                       </Button>
-                      <span className="w-8 text-center font-medium">{item.cantidad}</span>
+                      <span className="w-6 text-center font-medium text-xs">{item.cantidad}</span>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-8 w-8 p-0"
+                        className="h-6 w-6 p-0"
                         onClick={() => actualizarCantidad(item.producto.id, item.cantidad + 1)}
                       >
-                        <Plus className="h-3 w-3" />
+                        <Plus className="h-2 w-2" />
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        className="h-8 w-8 p-0"
+                        className="h-6 w-6 p-0"
                         onClick={() => actualizarCantidad(item.producto.id, 0)}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-2 w-2" />
                       </Button>
                     </div>
                   </div>
@@ -234,17 +234,17 @@ const VentaViewOdoo = () => {
           </div>
 
           {/* Totales */}
-          <div className="border-t pt-4 space-y-3">
+          <div className="border-t pt-3 space-y-2">
             <div className="text-right">
-              <p className="text-2xl font-bold">Total: ${total.toLocaleString()}</p>
+              <p className="text-xl font-bold">Total: ${total.toLocaleString()}</p>
             </div>
 
             {/* Fila compacta: Monto y Método de pago */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-xs font-medium mb-1">Monto recibido:</label>
                 <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded text-center">
-                  <span className="text-lg font-bold">
+                  <span className="text-base font-bold">
                     ${montoPagado ? Number(montoPagado).toLocaleString() : '0'}
                   </span>
                 </div>
@@ -253,7 +253,7 @@ const VentaViewOdoo = () => {
               <div>
                 <label className="block text-xs font-medium mb-1">Método:</label>
                 <Select value={metodoPago} onValueChange={setMetodoPago}>
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-8">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -292,18 +292,18 @@ const VentaViewOdoo = () => {
           </div>
         </div>
 
-        {/* Columna derecha - Productos - Más compacta */}
-        <div className="flex-1 p-4 overflow-hidden flex flex-col">
+        {/* Columna derecha - Productos - Más espacio */}
+        <div className="flex-1 p-3 overflow-hidden flex flex-col">
           {/* Filtros de categoría */}
-          <div className="mb-4 flex-shrink-0">
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-3 flex-shrink-0">
+            <div className="flex flex-wrap gap-1">
               {categorias.map(categoria => (
                 <Button
                   key={categoria}
                   variant={filtroCategoria === categoria ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFiltroCategoria(categoria)}
-                  className="capitalize"
+                  className="capitalize text-xs h-7"
                 >
                   {categoria}
                 </Button>
@@ -313,7 +313,7 @@ const VentaViewOdoo = () => {
 
           {/* Grid de productos con scroll */}
           <div className="flex-1 overflow-y-auto">
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2">
               {productosFiltrados.map(producto => (
                 <Card 
                   key={producto.id} 
@@ -322,15 +322,15 @@ const VentaViewOdoo = () => {
                   }`}
                   onClick={() => agregarAlCarrito(producto)}
                 >
-                  <CardContent className="p-3">
+                  <CardContent className="p-2">
                     <div className="text-center space-y-1">
-                      <div className="h-12 bg-gradient-to-br from-primary/10 to-primary/20 rounded-lg flex items-center justify-center mb-2">
-                        <span className="text-lg font-bold text-primary">
+                      <div className="h-8 bg-gradient-to-br from-primary/10 to-primary/20 rounded-lg flex items-center justify-center mb-1">
+                        <span className="text-sm font-bold text-primary">
                           {producto.nombre.charAt(0)}
                         </span>
                       </div>
                       <h3 className="font-semibold text-xs leading-tight line-clamp-2">{producto.nombre}</h3>
-                      <p className="text-sm font-bold text-green-600">
+                      <p className="text-xs font-bold text-green-600">
                         ${producto.precio.toLocaleString()}
                       </p>
                     </div>
