@@ -29,22 +29,12 @@ const VentaViewOdoo = () => {
 
   const agregarAlCarrito = (producto: Producto) => {
     if (producto.stock <= 0) {
-      toast({
-        title: "Sin stock",
-        description: `${producto.nombre} no tiene stock disponible`,
-        variant: "destructive"
-      });
       return;
     }
 
     const cantidadEnCarrito = carrito.find(item => item.producto.id === producto.id)?.cantidad || 0;
     
     if (cantidadEnCarrito >= producto.stock) {
-      toast({
-        title: "Stock insuficiente",
-        description: `Solo hay ${producto.stock} unidades disponibles de ${producto.nombre}`,
-        variant: "destructive"
-      });
       return;
     }
 
@@ -68,11 +58,6 @@ const VentaViewOdoo = () => {
     } else {
       const producto = productos.find(p => p.id === id);
       if (producto && nuevaCantidad > producto.stock) {
-        toast({
-          title: "Stock insuficiente",
-          description: `Solo hay ${producto.stock} unidades disponibles`,
-          variant: "destructive"
-        });
         return;
       }
       
@@ -193,31 +178,8 @@ const VentaViewOdoo = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
-      {/* Barra superior con información del turno */}
-      <div className="h-8 bg-white dark:bg-gray-800 border-b px-4 flex items-center justify-between text-xs">
-        <div className="flex items-center space-x-4">
-          {hasRole('admin') ? (
-            <span className="text-blue-600 dark:text-blue-400 font-medium">👑 Administrador</span>
-          ) : (
-            <span className="text-gray-600 dark:text-gray-400">Usuario</span>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          {turnoActual ? (
-            <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
-              Turno: {turnoActual.cajero}
-            </span>
-          ) : (
-            <span className="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
-              Sin turno
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex flex-1">
+    <div className="h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex h-full">
         {/* Columna izquierda - Carrito y Pago - Más ancha */}
         <div className="w-[480px] bg-white dark:bg-gray-800 border-r p-4 flex flex-col">
           {/* Lista de productos en el carrito */}
@@ -370,9 +332,6 @@ const VentaViewOdoo = () => {
                       <h3 className="font-semibold text-xs leading-tight line-clamp-2">{producto.nombre}</h3>
                       <p className="text-sm font-bold text-green-600">
                         ${producto.precio.toLocaleString()}
-                      </p>
-                      <p className={`text-xs ${producto.stock < 10 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                        {producto.stock}
                       </p>
                     </div>
                   </CardContent>
