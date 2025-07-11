@@ -132,10 +132,12 @@ const MainApp = () => {
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-6">
-          <div className="mb-6 space-y-4">
-            <TurnoStatus />
-            <StockAlerts />
-          </div>
+          {currentView !== 'venta' && (
+            <div className="mb-6 space-y-4">
+              <TurnoStatus />
+              <StockAlerts />
+            </div>
+          )}
           {renderView()}
         </main>
         </div>
