@@ -158,14 +158,14 @@ const VentaViewOdoo = () => {
     };
 
     return (
-      <div className="space-y-1">
+      <div className="space-y-2">
         {buttons.map((row, rowIndex) => (
           <div key={rowIndex} className="grid grid-cols-3 gap-1">
             {row.map((button) => (
               <Button
                 key={button}
                 variant="outline"
-                className="h-8 text-sm font-medium"
+                className="h-12 text-base sm:h-10 sm:text-sm font-medium"
                 onClick={() => handleKeypadClick(button)}
               >
                 {button}
@@ -174,7 +174,7 @@ const VentaViewOdoo = () => {
           </div>
         ))}
         <Button 
-          className="w-full h-8 text-sm mt-2"
+          className="w-full h-12 sm:h-10 text-sm mt-2"
           onClick={confirmarVenta}
           disabled={carrito.length === 0 || !montoPagado || Number(montoPagado) < total || (!hasRole('admin') && !turnoActual)}
         >
@@ -186,10 +186,10 @@ const VentaViewOdoo = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="flex h-full">
+    <div className="min-h-screen bg-background">
+      <div className="flex h-full flex-col md:flex-row">
         {/* Columna izquierda - Carrito y Pago - Más compacta */}
-        <div className="w-[400px] bg-white dark:bg-gray-800 border-r p-3 flex flex-col">
+        <div className="w-full md:w-[420px] bg-card md:border-r p-3 flex flex-col">
           {/* Lista de productos en el carrito */}
           <div className="flex-1 mb-3 overflow-hidden">
             <h2 className="text-base font-semibold mb-3">Carrito</h2>
@@ -321,7 +321,7 @@ const VentaViewOdoo = () => {
 
           {/* Grid de productos con scroll */}
           <div className="flex-1 overflow-y-auto">
-            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
               {productosFiltrados.map(producto => (
                 <Card 
                   key={producto.id} 
