@@ -186,7 +186,7 @@ const VentaViewOdoo = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <div className="flex h-full flex-col md:flex-row">
         {/* Columna izquierda - Carrito y Pago - Más compacta */}
         <div className="w-full md:w-[420px] bg-card md:border-r p-3 flex flex-col">
@@ -320,8 +320,8 @@ const VentaViewOdoo = () => {
           </div>
 
           {/* Grid de productos con scroll */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <div className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
               {productosFiltrados.map(producto => (
                 <Card 
                   key={producto.id} 

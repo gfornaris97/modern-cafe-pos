@@ -99,7 +99,11 @@ All colors MUST be HSL.
     @apply border-border box-border;
   }
 
+  html {
+    @apply overflow-x-hidden w-full;
+  }
+
   body {
-    @apply bg-background text-foreground overflow-x-hidden antialiased;
+    @apply bg-background text-foreground overflow-x-hidden antialiased w-full;
   }
 }

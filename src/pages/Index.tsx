@@ -42,7 +42,7 @@ const MainApp = () => {
   return (
     <TurnoProvider>
       <AppProvider>
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100">
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 overflow-x-hidden">
         {/* Header */}
         <header className="bg-white shadow-md border-b border-amber-200">
           <div className="container mx-auto px-4 py-4">
@@ -132,7 +132,7 @@ const MainApp = () => {
         </nav>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 pt-4 pb-24 md:py-6">
+        <main className="container mx-auto px-4 pt-4 pb-24 md:py-6 overflow-x-hidden">
           {currentView !== 'venta' && (
             <div className="mb-6 space-y-4">
               <TurnoStatus />
