@@ -22,7 +22,10 @@ const MobileNavBar: React.FC<MobileNavBarProps> = ({ currentView, onChange, isAd
 
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-card border-t shadow-sm pb-[env(safe-area-inset-bottom)]">
-      <div className="max-w-screen-md mx-auto px-2 py-2 grid grid-cols-4 gap-1">
+      <div
+        className="max-w-screen-md mx-auto px-2 py-2 grid gap-1"
+        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0,1fr))` }}
+      >
         {items.map(({ key, label, icon: Icon }) => (
           <Button
             key={key}
