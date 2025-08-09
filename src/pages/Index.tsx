@@ -14,13 +14,14 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { TurnoProvider } from '@/contexts/TurnoContext';
 import StockAlerts from '@/components/StockAlerts';
 import TurnoStatus from '@/components/TurnoStatus';
+import MobileNavBar from '@/components/MobileNavBar';
 
 type ViewType = 'venta' | 'gestion' | 'historial' | 'reportes' | 'caja';
 
 const MainApp = () => {
   const { user, logout, hasRole } = useAuth();
+  const isAdmin = hasRole('admin');
   const [currentView, setCurrentView] = useState<ViewType>('venta');
-
   const renderView = () => {
     switch (currentView) {
       case 'venta':
@@ -75,7 +76,7 @@ const MainApp = () => {
         </header>
 
         {/* Navigation */}
-        <nav className="bg-white border-b border-amber-200 shadow-sm">
+        <nav className="hidden md:block bg-card border-b shadow-sm">
           <div className="container mx-auto px-4">
             <div className="flex space-x-1">
               <Button
@@ -131,7 +132,7 @@ const MainApp = () => {
         </nav>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-6">
+        <main className="container mx-auto px-4 pt-4 pb-24 md:py-6">
           {currentView !== 'venta' && (
             <div className="mb-6 space-y-4">
               <TurnoStatus />
@@ -140,6 +141,12 @@ const MainApp = () => {
           )}
           {renderView()}
         </main>
+        {/* Mobile bottom nav */}
+        <MobileNavBar
+          currentView={currentView}
+          onChange={setCurrentView}
+          isAdmin={isAdmin}
+        />
         </div>
       </AppProvider>
     </TurnoProvider>

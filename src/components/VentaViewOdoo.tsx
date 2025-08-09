@@ -264,7 +264,7 @@ const VentaViewOdoo = () => {
                   <SelectTrigger className="h-8">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-50">
                     <SelectItem value="efectivo">Efectivo</SelectItem>
                     <SelectItem value="tarjeta">Tarjeta</SelectItem>
                     <SelectItem value="transferencia">Transferencia</SelectItem>
